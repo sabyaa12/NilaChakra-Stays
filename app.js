@@ -68,11 +68,9 @@ const sessionOption = {
 };
 
 
-// app.get("/", (req, res) => {
-//     res.send("go to : /listings ");
-// });
-
-
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
 
 app.use(flash());
 app.use(session(sessionOption));
