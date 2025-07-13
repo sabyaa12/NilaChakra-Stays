@@ -67,6 +67,9 @@ const sessionOption = {
     },
 };
 
+console.log("ENV PORT:", process.env.PORT);
+console.log("ENV ATLASDB_URL:", process.env.ATLASDB_URL);
+console.log("ENV MAP_API_KEY:", process.env.MAP_API_KEY);
 
 app.use(flash());
 app.use(session(sessionOption));
