@@ -89,6 +89,9 @@ app.use((req,res,next) => {
    // console.log(res.locals.success);
     next();
 });
+app.get("/", (req, res) => {
+    res.send("Server is up and running on Render!");
+});
 
 
 app.use("/listings", listingRouter);
