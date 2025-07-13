@@ -22,7 +22,7 @@ const listingRouter = require("./routes/listing.js");
 const reviewsRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-const dburl = process.env. ATLASDB_URL;
+const dburl = process.env.ATLASDB_URL;
 
 main()
     .then(() => {  // then and catch function 
