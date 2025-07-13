@@ -68,10 +68,6 @@ const sessionOption = {
 };
 
 
-app.get("/", (req, res) => {
-    res.redirect("/listings");
-});
-
 app.use(flash());
 app.use(session(sessionOption));
 app.use(passport.initialize());

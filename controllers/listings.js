@@ -41,19 +41,14 @@ const newListing = new Listing(req.body.listing);
 newListing.owner = req.user._id;
 newListing.image = {url , filename};
 console.log("Creating listing for location:", newListing.location);
-
+console.log("MAP API KEY is: ", process.env.MAP_API_KEY);
    let fetchUrl = `https://api.olamaps.io/places/v1/geocode?address=${newListing.location}&language=English&api_key=${process.env.MAP_API_KEY}`;
-   console.log("Fetch URL:", fetchUrl);
-
-    let data = await axios.get(fetchUrl);
-    console.log("Geocoding API response:", data.data);
-    
+    let data = await axios.get(fetchUrl);  
     let { lng, lat } = data.data.geocodingResults[0].geometry.location;
     newListing.geometry = { type: "Point", coordinates: [lng, lat] };
 
     await newListing.save();
-    console.log("New listing saved successfully:", newListing);
-    
+
     req.flash("success", "New Listing created" );
     res.redirect("/listings");
 }; 
