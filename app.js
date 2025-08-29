@@ -2,7 +2,6 @@ if(process.env.NODE_ENV != "production"){
 require("dotenv").config(); 
 }
 
-
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -16,7 +15,6 @@ const flash = require("connect-flash");
 const passport =  require("passport");
 const LocalStrategy  =  require("passport-local");
 const User = require("./models/user.js");
-
 
 const listingRouter = require("./routes/listing.js");
 const reviewsRouter = require("./routes/review.js");
@@ -48,10 +46,9 @@ const store = MongoStore.create ({
     secret: process.env.SECRET ,
     },
     touchAfter: 24 * 3600 , // seconds pe store hota hai
-
 });
 
-store.on("error" ,()=>{
+store.on("error" ,(err)=>{
     console.log("ERROR IN THE MONGO SESSION STORE" , err);
 });
 
@@ -71,8 +68,8 @@ console.log("ENV PORT:", process.env.PORT);
 console.log("ENV ATLASDB_URL:", process.env.ATLASDB_URL);
 console.log("ENV MAP_API_KEY:", process.env.MAP_API_KEY);
 
-app.use(flash());
 app.use(session(sessionOption));
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
@@ -81,7 +78,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-//local ke liye
+//local ke liye - middleware to set local variables for all routes
 app.use((req,res,next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -90,24 +87,29 @@ app.use((req,res,next) => {
     next();
 });
 
-// app.get("/", (req, res) => {
-//     res.send("Server is up and running on Render!");
-// });
+// Root route - redirect to listings
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
 
-
+// Mount routes
 app.use("/listings", listingRouter);
- app.use("/listings/:id/reviews", reviewsRouter);
- app.use("/", userRouter);
-
+app.use("/listings/:id/reviews", reviewsRouter);
+app.use("/", userRouter);
 
 app.all("*", (req, res, next) => {  //agar upar kisi incoming request se match nahi hua to , ye wala kaam  karega and error dega 
     next(new ExpressError(404, "page Not Found!"));
 });
 
 app.use((err, req, res, next) => {
-    let { statusCode = 500, message = "something went wrong" } = err; // idhar se statuscode niakala jayega and phir usee send kiya jayega 
-    res.status(statusCode).render("error.ejs", { message });
-    // res.status(statusCode).send(message);  // statuscode set hoga and message se send hoga 
+    let { statusCode = 500, message = "something went wrong" } = err;
+    res.status(statusCode).render("error.ejs", { 
+        message,
+        currUser: req.user,
+        success: req.flash("success"), 
+        error: req.flash("error")
+    });
+    // res.status(statusCode).send(message);
     //res.send("something went wrong");  
 });
 
@@ -116,7 +118,3 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`server is listening to ${port}`);
 });
-// app.listen(8000, () => {
-//     console.log("server is listening to 8000");
-// });
-
